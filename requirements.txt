@@ -1,0 +1,8 @@
+--index-url https://pypi.python.org/simple/
+arrow
+chardet
+flask
+psycopg2
+python-dateutil
+requests
+pyephem==3.7.6.0
