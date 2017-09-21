@@ -12,12 +12,13 @@ from werkzeug.routing import BaseConverter
 
 
 def create_app():
-    app = Flask(__name__)
-    # app.json_encoder = JSONEncoder
-    app.url_map.strict_slashes = False
+    args = {}
+    # args['instance_path'] = '/home/axelbsa/src/hound/hound'
+    app = Flask(__name__, **args)
+    # app.config.from_pyfile('conf/config.py')
+    app.config.update(SECRET_KEY='development key_____!!!skgtg20')
 
-    @app.after_request
-    def set_max_age(response):
-        if 'Cache-Control' not in response.headers:
-            response.headers['Cache-Control'] = 'max-age={}'.format(0)
-        return response
+    from root_pages import init_pages
+    init_pages(app)
+
+    return app
