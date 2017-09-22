@@ -7,7 +7,6 @@ import psycopg2
 from sqlalchemy.exc import SQLAlchemyError
 
 from flask import Flask, session as session_data, jsonify, json, request
-from flask_principal import Principal, PermissionDenied
 from werkzeug.routing import BaseConverter
 
 
