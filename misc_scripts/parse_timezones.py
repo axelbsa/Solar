@@ -86,18 +86,20 @@ def parse_countries(db_conn):
 
 def parse_timezones(db_conn):
     cur = db_conn.cursor()
-    with codecs.open("timeZones.txt", encoding="utf-8") as f:
-        print f.readline()
-        for line in f:
-            tz_info = re.split("\t", f.readline().strip())
+    with open("timeZones.txt") as f:
+        spamreader = csv.reader(f, delimiter='\t', quotechar='|')
+        spamreader.next()
+        for tz_info in spamreader:
+            print tz_info[0]
             cur.execute(insert_timezone.format
-                        (
-                            tz_info[0], tz_info[1], float(tz_info[2]),
-                            float(tz_info[3]), float(tz_info[4])
-                        ))
+            (
+                tz_info[0], tz_info[1], float(tz_info[2]),
+                float(tz_info[3]), float(tz_info[4])
+            ))
     db_conn.commit()
+    return
 
 
 if __name__ == "__main__":
-    parse_countries(db_connect())
-    # parse_timezones(db_connect())
+    # parse_countries(db_connect())
+    parse_timezones(db_connect())
