@@ -1,17 +1,16 @@
-from operator import itemgetter
-from werkzeug import secure_filename
-
 from voluptuous import All, Any, Coerce, In, Optional, Required, Schema
-
-from flask import (
-    Flask, render_template, flash, redirect, session, url_for,
-    request, Blueprint, request, jsonify, json
-)
+from flask import render_template, session, request, jsonify
 
 from solar.calculations import sun_rise, sun_set
 
 
 def init_pages(app):
+
+    @app.before_first_request
+    def startup():
+        pass
+        # from db import connect
+        # pg, meta = connect()
 
     @app.route('/', methods=['GET', 'POST'])
     def index():
