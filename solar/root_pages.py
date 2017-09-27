@@ -1,14 +1,31 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from voluptuous import All, Any, Coerce, In, Optional, Required, Schema
 from flask import render_template, session, request, jsonify
 
 from solar.calculations import sun_rise, sun_set
+from solar.db import db_wrapper
 
 
 def init_pages(app):
 
+    #db = db_wrapper()
+    #db.test_query()
+
+    from db import Geoname
+    from db import db
+
+    db.app = app
+    db.init_app(app)
+
+    properties = Geoname.query.filter_by(name='Oslo').first()
+    row2dict = lambda r: {c.name: unicode(getattr(r, c.name)) for c in r.__table__.columns}
+    print row2dict(properties)
+
     @app.before_first_request
     def startup():
-        pass
+        print("This will be called before any requests")
         # from db import connect
         # pg, meta = connect()
 
