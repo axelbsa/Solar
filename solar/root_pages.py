@@ -1,33 +1,17 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from voluptuous import All, Any, Coerce, In, Optional, Required, Schema
-from flask import render_template, session, request, jsonify
+from flask import request, jsonify
+from voluptuous import Optional, Required, Schema
 
 from solar.calculations import sun_rise, sun_set
-from solar.db import db_wrapper
 
 
 def init_pages(app):
-
-    #db = db_wrapper()
-    #db.test_query()
-
-    from db import Geoname
     from db import db
 
     db.app = app
     db.init_app(app)
-
-    properties = Geoname.query.filter_by(name='Oslo').first()
-    row2dict = lambda r: {c.name: unicode(getattr(r, c.name)) for c in r.__table__.columns}
-    print row2dict(properties)
-
-    @app.before_first_request
-    def startup():
-        print("This will be called before any requests")
-        # from db import connect
-        # pg, meta = connect()
 
     @app.route('/', methods=['GET', 'POST'])
     def index():
@@ -38,29 +22,54 @@ def init_pages(app):
 
     @app.route('/main', methods=['GET'])
     def render_main():
-        return 123
+        print request.args
+        return "123"
 
-    @app.route('/sun-rise', methods=['POST'])
-    def calculate_sun_rinse():
+    @app.route('/sun-rise', methods=['POST', 'GET'])
+    def calculate_sun_rise():
         sun_rise_params = Schema({
-            Required("city_name", default="oslo, norway"): basestring,
+            Required("city", default="oslo"): basestring,
             Optional("date", default=""): basestring
         })
-        print request.json
-        params = sun_rise_params(request.json)
-        next_rise = sun_rise(params["city_name"])
+
+        logger.debug("params:{}".format(dict(request.args)))
+        params = ""
+        if request.method == "POST":
+            params = sun_rise_params(request.json)
+        elif request.method == "GET":
+            _t = {k: "".join(v) for k, v in request.args.iteritems()}
+            logger.debug("_t = {}".format(_t))
+            params = sun_rise_params(_t)
+
+        next_rise = sun_rise(params["city"])
+
+        if not next_rise:
+            return jsonify({"results": False})
+
+        next_rise = next_rise.isoformat()
         return jsonify(next_sun_rise_from_position=next_rise)
 
-    @app.route('/sun-set', methods=['POST'])
+    @app.route('/sun-set', methods=['POST', 'GET'])
     def calculate_sun_set():
         sun_rise_params = Schema({
-            Required("city_name", default=None): basestring,
+            Required("city", default="oslo"): basestring,
             Optional("date", default=""): basestring
         })
-        print request.json
-        params = sun_rise_params(request.json)
-        next_rise = sun_set(params["city_name"])
-        return jsonify(next_sun_set_from_position=next_rise)
+
+        params = ""
+        if request.method == "POST":
+            params = sun_rise_params(request.json)
+        elif request.method == "GET":
+            _t = {k: "".join(v) for k, v in request.args.iteritems()}
+            logger.debug("_t = {}".format(_t))
+            params = sun_rise_params(_t)
+
+        next_set = sun_set(params["city"])
+        if not next_set:
+            return jsonify({"results": False})
+
+        next_set = next_set.isoformat()
+        return jsonify(next_sun_set_from_position=next_set)
 
     @app.route('/programming', methods=['GET', 'POST'])
     def render_programming():

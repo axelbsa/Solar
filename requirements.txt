@@ -7,3 +7,5 @@ python-dateutil
 requests
 voluptuous
 pyephem==3.7.6.0
+sqlalchemy
+flask_sqlalchemy

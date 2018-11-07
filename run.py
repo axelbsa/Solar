@@ -19,4 +19,4 @@ requests_log.propagate = True
 
 app = create_app()
 # app.debug = True
-app.run(host=options.host, port=options.port)
+app.run(host=options.host, port=options.port, debug=True)
